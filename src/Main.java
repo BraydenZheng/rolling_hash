@@ -1,18 +1,53 @@
+import javafx.scene.shape.Path;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import java.util.HashMap;
+import java.util.Random;
 
 public class Main
 {
 	public static void main(String[] args)
 	{
+
 		String s1 = "GAACGCGGCACACTTGATGAAGTCAAGACGAAATTAGACGTGCGGAAGACCGTCAAAATTATCGTGCAGAAGA";
 		String s2 = "TATGCCCGCGATAGAACATGAAAATATCATTGACGTGGAATACAAAGGTAGAAAGGCGGTCATAGAAGCAAAATCCGATA";
-//		String s1 = "GAACCGCCG";
-//		String s2 = "TAATGCCC";
+		String s3 = fileImport("/Users/brayden/DATA/cu/course/7000/hw/problem_set_1/rolling_hash/rolling_hash/src/bacterial_genome_1.txt");
+		String s4 = fileImport("/Users/brayden/DATA/cu/course/7000/hw/problem_set_1/rolling_hash/rolling_hash/src/bacterial_genome_2.txt");
+		s3 = s3.substring(0,100000);
+		s4 = s4.substring(0,100000);
+		System.out.println(s3.length());
+		System.out.println(s4.length());
 
-		final int b = 17;
+		// Time counting start
+		long start = System.currentTimeMillis();
+//		final int b = 17;
+		final int b = new Random().nextInt() * 100 + 10;
 		final int p = 31513;
-		HashMap<String, Integer> res = commonSubstring(s1, s2, 7, b, p);
+		HashMap<String, Integer> res = commonSubstring(s3, s4, 16, b, p);
 		System.out.println(res);
+		long end = System.currentTimeMillis();
+		long elapsedTime = end - start;
+		System.out.println("time take: " + elapsedTime/1000F);
+	}
+
+	/**
+	 * @Source https://stackoverflow.com/questions/326390/how-do-i-create-a-java-string-from-the-contents-of-a-file
+	 * File import utils: solution from web blog
+	 */
+	private static  String fileImport(String path) {
+		try
+		{
+			String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+			return content;
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static HashMap<String, Integer> commonSubstring(String s1, String s2, int k, int b, int p) {
@@ -28,9 +63,8 @@ public class Main
 		for (int i = 1; i < s1.length() - k; i++) {
 			String ori = s1.substring(i, i + k);
 			double hash = rollingHash(s1, b, k, i, p, previousHash);
-
-			// debug
-			double realHash = multiPlicativeHash(s1, b, k, i, p);
+			// use for verify
+//			double hash = multiPlicativeHash(s1, b, k, i, p);
 
 			hashTable.put(hash, ori);
 			previousHash = hash;
@@ -56,6 +90,8 @@ public class Main
 		for (int i = 1; i <= s2.length() - k; i++) {
 //			String sec = s2.substring(i, i + k);
 			double hash = rollingHash(s2, b, k, i, p, previousHash);
+			// use for verify
+//			double hash = multiPlicativeHash(s1, b, k, i, p);
 
 			match = hashTable.get(hash);
 			if (match != null)
